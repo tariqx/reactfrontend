@@ -1,43 +1,42 @@
 import React, { useState } from 'react';
-import { Form, FormField } from 'react-hooks-form'
+import { useForm } from 'react-hooks-form'
 import config from '../../config/config'
 import axios from 'axios';
 import { navigate } from 'hookrouter';
 import styles from './DeleteProducts.module.css';
+import { TextField, Button } from '@material-ui/core';
 
 const DeleteProducts: React.FC = () => {
 
   let [divMessage, setDivMessage] = useState('');
+  const { register } = useForm();
 
-  const submitForm = async (values) => {
-    let id = values.ID;
-
+  const submitForm = async (e) => {
+    //supress the form submission
+    e.preventDefault();
+    let id = e.currentTarget.id.value;
     setDivMessage("Loading...");
     //make delete call to remove an existing product 
-    await axios.delete(config.products.api_endpoint + "/"+ id)
-    .then(data => {
-      navigate("/allproducts");
-    })
+    await axios.delete(config.products.api_endpoint + "/" + id)
+      .then(data => {
+        navigate("/allproducts");
+      })
       .catch(err => {
         setDivMessage(err.message)
       });
 
   };
 
-return (
-  <div className={styles.DeleteProducts}>
-      <h1>Delete Product By ID</h1>
-    <Form onSubmit={submitForm}>
-        <label>
-          ID:
-        <FormField component="input" name="ID" type="text" /></label> <br />
-        <br />
-        <button type="submit">Delete Product by ID</button>
-      </Form>
+  return (
+    <div>
+      <h2>Delete Product By ID</h2>
+      <form onSubmit={submitForm}>
+        <TextField id="id" name="id" label="Enter product ID" inputRef={register} /><br /><br />
+        <Button type="submit" variant="contained" color="primary">Delete</Button>
+      </form>
       <div>{divMessage}</div>
-  </div>
-);
-
+    </div>
+  );
 };
 
 export default DeleteProducts;

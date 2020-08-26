@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import styles from './AddProducts.module.css';
-import { Form, FormField} from 'react-hooks-form'
+import { useForm } from 'react-hooks-form';
 import config from '../../config/config'
 import axios from 'axios';
 import { navigate } from 'hookrouter';
+import { TextField, Button } from '@material-ui/core';
+import IProduct from "../../interfaces/IProduct"
 
 
 //functional component 
@@ -11,12 +13,27 @@ const AddProducts: React.FC = () => {
 
   //used for displaying any message on the UI 
   let [divMessage, setDivMessage] = useState('');
+  const { register, errors } = useForm();
+
+  //create a product object out of interface  
+  let product: IProduct = {
+    Name: '',
+    Brand: ''
+  };
 
   //async function to handle the asyn post api call 
   //will be triggered upon form submission
-  const submitForm = async (values) => {
+
+  const submitForm = async (e) => {
+    //suppress the form submission
+    e.preventDefault();
+    let curTarget = e.currentTarget;
+    //initialize product object values...
+    product.Name = curTarget.name.value;
+    product.Brand = curTarget.brand.value;
+    
     //format the values into an array 
-    let formData = "[" + JSON.stringify(values) + "]";
+    let formData = "[" + JSON.stringify(product) + "]";
 
     setDivMessage("Loading...");
     await axios.post(config.products.api_endpoint, formData, {
@@ -38,18 +55,11 @@ const AddProducts: React.FC = () => {
   return (
     <div className={styles.AddProducts}>
       <h1>Add Product</h1>
-      <Form onSubmit={submitForm}>
-        <label>
-          ID:
-        <FormField component="input" name="ID" type="text" /></label> <br />
-        <label>
-          Name:
-        <FormField component="input" name="Name" type="text" /></label> <br />
-        <label>
-          Brand:
-        <FormField component="input" name="Brand" type="text" /></label> <br /><br />
-        <button type="submit">Add Product</button>
-      </Form>
+      <form onSubmit={submitForm}>
+          <TextField id="name" name="name" label="Model Name" inputRef = {register} /> <br />
+          <TextField id="brand" name="brand" label="Brand Name" inputRef = {register} /> <br /><br />
+          <Button type="submit" variant="contained" color="primary">Add</Button>
+      </form>
       <div>{divMessage}</div>
     </div>);
 

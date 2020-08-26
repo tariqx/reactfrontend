@@ -2,6 +2,36 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import config from '../../config/config'
 import styles from './DisplayProducts.module.css';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
+import { Table, TableRow, TableBody, TableCell, TableContainer, TableHead } from '@material-ui/core';
+
+//add styles to table cells
+const StyledTableCell = withStyles((theme) => ({
+  head: {
+    backgroundColor: theme.palette.common.black,
+    color: theme.palette.common.white,
+  },
+  body: {
+    fontSize: 14,
+  },
+}))(TableCell);
+
+//styles for table rows
+const StyledTableRow = withStyles((theme) => ({
+  root: {
+    '&:nth-of-type(odd)': {
+      backgroundColor: theme.palette.action.hover,
+    },
+  },
+}))(TableRow);
+
+//styles for over table 
+const useStyles = makeStyles({
+  table: {
+    minWidth: 700,
+  },
+});
+
 
 function DisplayProducts() {
   const [products, setProducts] = useState<any[]>([]);
@@ -17,59 +47,31 @@ function DisplayProducts() {
       });
   }, []) //empty [] indicates to run this effect hook once and no need to keep re-running 
 
-  //setup table structure 
-  const setupTable = () => {
-    return (
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Brand</th>
-          </tr>
-        </thead>
-        <tbody>
-          {renderRows()}
-        </tbody>
-      </table>
-    )
-  }
+  const classes = useStyles();
 
-  //setup table rows based on the products array
-  const renderRows = () => {
-    return products.map((value, idx) => {
-      return (
-        <tr key={idx}>
-          <td>{value.id.toString().trim()}</td>
-          <td>{value.name}</td>
-          <td>{value.brand}</td>
-        </tr>
-      )
-    });
-  }
-
-  //render our data based on certain conditions
-  const renderData = () => {
-    if (error) {
-      return (
-        error
-        );
-    } else {
-      //if no error, otherwise return regular content
-      if (products.length > 0) {
-        return (
-          setupTable()
-        );
-      }
-      else {
-        return (
-          <h2>No products!</h2>
-        );
-      }
-    };
-  }
-
-  return (<div className="card">{renderData()}</div>);
+  return (
+    <TableContainer>
+      <Table className={classes.table} aria-label="customized table">
+        <TableHead>
+          <TableRow>
+            <StyledTableCell>ID</StyledTableCell>
+            <StyledTableCell align="left">Name</StyledTableCell>
+            <StyledTableCell align="left">Brand</StyledTableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {products.map((row, idx) => (
+            <StyledTableRow key={idx}>
+              <StyledTableCell component="th" scope="row">
+                {row.id.toString().trim()}
+              </StyledTableCell>
+              <StyledTableCell align="left">{row.name}</StyledTableCell>
+              <StyledTableCell align="left">{row.brand}</StyledTableCell>
+            </StyledTableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>);
 
 };
 
